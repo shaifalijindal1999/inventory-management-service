@@ -5,6 +5,7 @@ import com.inventorymanagementservice.models.ProductModels.ProductInfo;
 import com.inventorymanagementservice.models.ErrorResponse;
 import com.inventorymanagementservice.repositories.ProductDataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -19,7 +20,8 @@ public class ProductService {
         // Validate request parameters
         if (id == null || id.isEmpty() || requestedQuantity < 0) {
             ProductInfo product = new ProductInfo();
-            product.setErrorResponse(new ErrorResponse("500","Invalid request"));
+            product.setErrorResponse(new ErrorResponse(HttpStatus.BAD_REQUEST.name(),"Invalid request"));
+            return product;
         }
 
         // Fetch product from Database
@@ -29,13 +31,13 @@ public class ProductService {
 
         if (productData == null) {
             ProductInfo product = new ProductInfo();
-            product.setErrorResponse(new ErrorResponse("500","No product found"));
+            product.setErrorResponse(new ErrorResponse(HttpStatus.BAD_REQUEST.name(), "No product found with given id!"));
             return product;
         }
 
         if (productData.getQuantity() < requestedQuantity) {
             ProductInfo product = new ProductInfo();
-            product.setErrorResponse(new ErrorResponse("500","Product unavailable"));
+            product.setErrorResponse(new ErrorResponse(HttpStatus.OK.name(),"Requested quantity of the product is not available in the stock!"));
             return product;
         }
 
